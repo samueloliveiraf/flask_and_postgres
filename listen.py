@@ -1,10 +1,7 @@
-from flask import Flask, Response
 from decouple import config
 
 import psycopg2.extensions
 import select
-
-app = Flask(__name__)
 
 
 def stream_messages(channel):
@@ -30,12 +27,3 @@ def stream_messages(channel):
         while conn.notifies:
             notify = conn.notifies.pop()
             yield 'data: ' + notify.payload + '\n\n'
-
-
-@app.route('/message/<channel>', methods=['GET'])
-def get_messages(channel):
-    return Response(stream_messages(channel), mimetype='text/event-stream')
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(config('PORT')))
